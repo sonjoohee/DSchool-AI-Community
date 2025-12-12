@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.theboki {
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+}
+
+.theboki1 {
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+}
+
+.Image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    padding: 0px 0px;
+}
+
+.Image2 {
+    width: 10px;
+    height: 10px;
+    object-fit: cover;
+    padding: 0px 0px;
+}
+
+.Search {
+    text-align: center;
+    width: 200px;
+    height: 50px;
+    margin: auto auto;
+    display: flex;
+    border: 1px solid red;
+}
