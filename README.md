@@ -3,7 +3,6 @@
 > **⚠️ Archive Notice**
 > 본 프로젝트는 **2023.08 ~ 2024.05** 기간 동안 개발된 프로젝트입니다.
 > 포트폴리오 아카이빙을 위해 로컬에 보관된 소스 코드를 **2025년 12월에 재업로드(Restoration)** 하였습니다.
-> *This repository is an archive of a past project uploaded for portfolio purposes.*
 
 <br/>
 
@@ -40,21 +39,6 @@
 
 <br/>
 
-## 📝 Self-Feedback (Refactoring Points)
+## 📝 Self-Feedback & Improvements (Refactoring Points)
 
-현재 시점에서 본 과거 코드를 회고하며, 향후 개선이 필요한 지점들을 분석했습니다.
-
-**1. API 호출 최적화 (Server-side Pagination)**
-* **AS-IS:** 전체 데이터를 호출(`getAll`)한 후 클라이언트 사이드에서 필터링(`find`)하여 렌더링 속도 저하 우려.
-* **TO-BE:** API 요청 시 `Item ID` 혹은 `Page Query`를 전달하여 필요한 데이터만 부분적으로 로딩하도록 개선 필요.
-
-**2. 환경 변수 관리 (Environment Variables)**
-* **AS-IS:** API Base URL이 로컬 환경(`localhost`)으로 하드코딩 되어 있음.
-* **TO-BE:** `.env` 파일을 도입하여 개발(Dev) 및 배포(Prod) 환경에 따라 동적으로 주소를 관리하도록 수정 필요.
-
-**3. 데이터 의존성 분리 (DTO Pattern)**
-* **AS-IS:** Elasticsearch의 Raw Data 구조(`_source`, `hits`)가 프론트엔드 컴포넌트에 직접 노출됨.
-* **TO-BE:** 데이터 변환 레이어(Mapper)를 두어, 백엔드 DB 구조가 변경되더라도 UI 컴포넌트에는 영향이 없도록 설계 개선 필요.
-
-
-
+현재 시점에서 본 과거 코드를 회고하며, 향후 개선이 필요한 지점들을 분석하고 이미 적용한 개선사항들을 반영했습니다. API 서비스 계층 도입, 환경 변수 관리 개선, 데이터 의존성 분리, Skeleton UI 구현, 코드 유지보수성 향상 등의 개선을 완료했습니다.
