@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import Pagination from "../component/pagination";
 import replie from '../icons/replie.png'
 import Header from "../component/headerA";
 import Posting from "../component/recommend/posting";
-import getPosting from "../service/get/getPosting";
-import { useQuery } from "react-query";
+import { searchAPI } from "../service/api";
+import SkeletonCard from "../component/SkeletonCard";
 
 export default function Home() {
     const [currentPage, setCurrentPage] = useState(1);
@@ -14,20 +13,22 @@ export default function Home() {
     const [data, setData] = useState([]);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-
-    const { isLoding: postsLoading, data: posts } = useQuery({
-        queryKey: ["main", "posts"],
-        queryFn: () => getPosting(),
-    })
 
     const fetchData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        
         try {
-            const response = await axios.get('http://127.0.0.1:8000/items');
+            const response = await searchAPI.getAllItems();
             const responseData = response.data;
-            setData(responseData.hits.hits);
+            setData(responseData.hits?.hits || []);
         } catch (error) {
-            console.error('Error:', error);
+            setError("게시글을 불러오는 중 오류가 발생했습니다.");
+        } finally {
+            setLoading(false);
         }
     }, []);
 
@@ -39,7 +40,7 @@ export default function Home() {
     const increaseClicked = async (_id) => {
         try {
             // 서버에 PUT 요청을 보내 조회수 증가
-            await axios.put(`http://127.0.0.1:8000/items/${_id}/increase-clicked`);
+            await searchAPI.increaseClicked(_id);
 
             // 조회수 증가가 성공한 후, 데이터를 다시 가져와서 업데이트합니다.
             const updatedData = [...data];
@@ -71,13 +72,47 @@ export default function Home() {
         setCurrentPage(pageNumber);
     };
 
-    // console.log(postData);
-    console.log(data);
+    // Loading state UI
+    if (loading) {
+        return (
+            <div className="flex flex-col">
+                <Header query={query} setQuery={setQuery} results={results} setResults={setResults} />
+                <div className="bg-gray-200 min-h-screen">
+                    <div className='flex h-[37rem] justify-center p-2'>
+                        <div className='w-[40rem] border border-[#d6d6d6] bg-white'>
+                            {[...Array(4)].map((_, index) => (
+                                <SkeletonCard key={index} />
+                            ))}
+                        </div>
+                        <div className='w-[30rem] border border-[#d6d6d6] p-3 ml-2 bg-white'>
+                            <div className='w-full h-fit pb-3'>
+                                <span className='flex'><p className='font-bold text-red-600'>홍길동</p>님을 위한 추천글</span>
+                            </div>
+                            <div className='w-full h-0.5 bg-[#d6d6d6]' />
+                            <Posting />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state UI
+    if (error) {
+        return (
+            <div className="flex flex-col">
+                <Header query={query} setQuery={setQuery} results={results} setResults={setResults} />
+                <div className="bg-gray-200 min-h-screen flex justify-center items-center">
+                    <div className="text-red-500 p-4">{error}</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col">
             <Header query={query} setQuery={setQuery} results={results} setResults={setResults} />
-            <div className=" bg-gray-200 h-screen">
+            <div className="bg-gray-200 min-h-screen">
                 <div className='flex h-[37rem] justify-center p-2'>
                     <div className='w-[40rem] border border-[#d6d6d6] bg-white'>
                         {currentItems.map((item, index) => (
@@ -85,22 +120,24 @@ export default function Home() {
                                 <div className='w-full p-3 pr-8'>
                                     <div className='w-full h-fit mb-5'>
                                         <div className='flex mb-2 space-x-2 font-bold items-center'>
-                                            <h1 className=' max-w-xs'>{item._source.subject}</h1>
+                                            <h1 className='max-w-xs truncate'>{item._source.subject}</h1>
                                             <hr className="bg-[#a5a5a5] w-0.5 h-4" />
-                                            <span className='text-[#a5a5a5]'>{item._source.created_at}</span>
+                                            <span className='text-[#a5a5a5] text-sm'>{item._source.created_at}</span>
                                             <hr className="bg-[#a5a5a5] w-0.5 h-4" />
-                                            <span className='text-[#a5a5a5]'>{item._source.clicked}</span>
+                                            <span className='text-[#a5a5a5] text-sm'>{item._source.clicked || 0}</span>
                                             <hr className="bg-[#a5a5a5] w-0.5 h-4" />
-                                            <span className='text-[#a5a5a5] flex'>
+                                            <span className='text-[#a5a5a5] flex items-center text-sm'>
                                                 <img
-                                                    className='w-5 h-5 flex self-center mt-1 mr-1'
+                                                    className='w-4 h-4 flex self-center mr-1'
                                                     src={replie}
-                                                    alt='d'
+                                                    alt='reply icon'
                                                 />
-                                                {item._source.replies.length}
+                                                {item._source.replies?.length || 0}
                                             </span>
                                         </div>
-                                        <span className='w-full break-words text-ellipsis overflow-hidden theboki'>{item._source.contents}</span>
+                                        <p className='w-full break-words line-clamp-2 text-gray-700 text-sm'>
+                                            {item._source.contents}
+                                        </p>
                                     </div>
                                     <div className='w-full h-0.5 bg-[#d6d6d6]' />
                                 </div>

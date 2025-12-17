@@ -1,31 +1,31 @@
-import { useEffect } from "react";
 import searchicon from "../icons/searchicon.svg";
 import Logo from "../icons/dschool_logo1.png";
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { searchAPI } from "../service/api";
 
 export default function Header({ query, setQuery, results, setResults }) {
-    // const [query, setQuery] = useState("");
-    // const [results, setResults] = useState([]);
-    useEffect(() => {
-        console.log(query)
-    }, [query])
-
     const navigate = useNavigate()
 
     const handleSearch = async () => {
+        if (!query.trim()) return;
+        
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/search?query=${query}`); // FastAPI 엔드포인트에 요청 보내기
+            const response = await searchAPI.searchPosts(query);
             const data = response.data;
-            console.log(data);
-            setResults(data.hits);
-            navigate(`/search/${query}`);
+            setResults(data.hits || []);
+            navigate(`/search/${encodeURIComponent(query)}`);
         } catch (error) {
             console.error("Error:", error);
+            setResults([]);
         }
     };
-    console.log(results)
 
+    // Handle Enter key press
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     return (
         <div>
@@ -40,18 +40,18 @@ export default function Header({ query, setQuery, results, setResults }) {
                 </Link>
                 <div className="w-[30rem] h-10 flex border pl-2 ml-10 border-red-600 items-center self-center">
                     <input
-                        className="outline-none cursor-pointer"
+                        className="outline-none w-full h-full px-2"
                         type="text"
                         placeholder="검색어를 입력하세요"
-                        style={{ width: '90%', height: '90%' }}
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
+                        onKeyPress={handleKeyPress}
                     />
-                    <span className="w-10 h-10">
+                    <span className="w-10 h-10 flex items-center justify-center">
                         <img
-                            className="flex pt-2 cursor-pointer"
+                            className="cursor-pointer w-6 h-6"
                             src={searchicon}
-                            alt="사진"
+                            alt="search"
                             onClick={handleSearch}
                         />
                     </span>
@@ -59,11 +59,6 @@ export default function Header({ query, setQuery, results, setResults }) {
                         #
                     </div>
                 </div>
-                {/* <ul>
-                {results.map((result) => (
-                    <li key={result._id}>{result._source.subject}</li>
-                ))}
-            </ul> */}
             </div>
             <div className='w-full border border-t-[#ececec] border-b-[#858585]'>
                 <div className="flex text-base font-bold w-[70rem] h-12 items-center mx-auto pl-1">

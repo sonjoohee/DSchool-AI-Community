@@ -1,38 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import item from '../dummy/item.json';
 import '../App.css';
 import Pagination from './pagination';
 import { Link } from 'react-router-dom';
 import replie from "../icons/replie.png";
+import { searchAPI } from '../service/api';
+import SkeletonCard from './SkeletonCard';
 
 export default function Post() {
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 번호
     const [itemsPerPage] = useState(4); // 한 페이지에 표시할 항목 수
     const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
+            setLoading(true);
+            setError(null);
+            
             try {
-                const response = await axios.get('http://127.0.0.1:8000/items');
+                const response = await searchAPI.getAllItems();
                 const responseData = response.data;
-                setData(responseData.hits.hits);
+                setData(responseData.hits?.hits || []);
             } catch (error) {
-                console.error('Error:', error);
+                setError("게시글을 불러오는 중 오류가 발생했습니다.");
+            } finally {
+                setLoading(false);
             }
         }
 
         fetchData();
     }, []);
-
-    // useEffect(() => {
-    //     setPostData(item);
-    //     setLoading(false);
-    // }, []);
-
-    // if (loading) {
-    //     return <div>Loading...</div>;
-    // }
 
     // 현재 페이지의 데이터 범위 계산
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -44,7 +43,35 @@ export default function Post() {
         setCurrentPage(pageNumber);
     };
 
-    console.log(data);
+    // Loading state UI
+    if (loading) {
+        return (
+            <div className='flex justify-center p-2'>
+                <div className='w-[40rem] border border-[#d6d6d6] bg-white'>
+                    {[...Array(4)].map((_, index) => (
+                        <SkeletonCard key={index} />
+                    ))}
+                </div>
+                <div className='w-[30rem] border border-[#d6d6d6] p-3 ml-2 bg-white'>
+                    <div className='w-full h-fit pb-3'>
+                        <span className='flex'><p className='font-bold text-red-600'>홍길동</p>님을 위한 추천글</span>
+                    </div>
+                    <div className='w-full h-0.5 bg-[#d6d6d6]' />
+                </div>
+            </div>
+        );
+    }
+
+    // Error state UI
+    if (error) {
+        return (
+            <div className='flex justify-center p-2'>
+                <div className='w-[40rem] border border-[#d6d6d6] bg-white p-4 text-center text-red-500'>
+                    {error}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className='flex justify-center p-2'>
@@ -54,18 +81,20 @@ export default function Post() {
                         <div className='w-full p-3 pr-8'>
                             <div className='w-full h-fit mb-5'>
                                 <div className='flex mb-2 space-x-2 font-bold items-center'>
-                                    <h1 className=' max-w-xs'>{item._source.subject}</h1>
-                                    <span className='text-[#a5a5a5]'>{item._source.created_at}</span>
-                                    <span className='text-[#a5a5a5] flex'>
+                                    <h1 className='max-w-xs truncate'>{item._source.subject}</h1>
+                                    <span className='text-[#a5a5a5] text-sm'>{item._source.created_at}</span>
+                                    <span className='text-[#a5a5a5] flex items-center text-sm'>
                                         <img
-                                            className='w-5 h-5 flex self-center mt-1 mr-1'
+                                            className='w-4 h-4 flex self-center mr-1'
                                             src={replie}
-                                            alt='d'
+                                            alt='reply icon'
                                         />
-                                        {item._source.replies.length}
+                                        {item._source.replies?.length || 0}
                                     </span>
                                 </div>
-                                <span className='w-full break-words text-ellipsis overflow-hidden theboki'>{item._source.contents}</span>
+                                <p className='w-full break-words line-clamp-2 text-gray-700 text-sm'>
+                                    {item._source.contents}
+                                </p>
                             </div>
                             <div className='w-full h-0.5 bg-[#d6d6d6]' />
                         </div>
@@ -90,4 +119,3 @@ export default function Post() {
         </div>
     );
 }
-
