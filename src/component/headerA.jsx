@@ -20,7 +20,6 @@ export default function Header({ query, setQuery, results, setResults }) {
         }
     };
 
-    // Handle Enter key press
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             handleSearch();

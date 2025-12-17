@@ -22,3 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 ai-model/D2V/items.jsonai-model/D2V/items.json
+ai-model/D2V/doc2vec_corpus.pkl
+.env

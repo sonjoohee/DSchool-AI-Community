@@ -51,7 +51,6 @@ export default function Posting() {
         );
     }
 
-    // Error state UI
     if (error) {
         return (
             <div className="p-2 text-red-500">
@@ -63,13 +62,10 @@ export default function Posting() {
     // 클릭한 게시글의 조회수를 증가시키는 함수
     const increaseClicked = async (item_idx) => {
         try {
-            // 서버에 PUT 요청을 보내 조회수 증가
-            await searchAPI.increaseClicked(item_idx); // Changed from hardcoded URL to API service
+            await searchAPI.increaseClicked(item_idx); 
             
-            // 조회수 증가가 성공한 후, 데이터를 다시 가져와서 업데이트합니다.
             const updatedData = [...data];
 
-            // 해당 아이템을 찾아서 클릭수 증가
             const itemIndex = updatedData.findIndex(item => item._source.item_idx === item_idx);
             if (itemIndex !== -1) {
                 if (!updatedData[itemIndex]._source.clicked) {
@@ -78,8 +74,6 @@ export default function Posting() {
                     updatedData[itemIndex]._source.clicked += 1;
                 }
             }
-
-            // 상태 업데이트
             setData(updatedData);
         } catch (error) {
             console.error("Error:", error);

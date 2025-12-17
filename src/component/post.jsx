@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import item from '../dummy/item.json';
+import  { useEffect, useState } from 'react';
 import '../App.css';
 import Pagination from './pagination';
 import { Link } from 'react-router-dom';
@@ -8,8 +7,8 @@ import { searchAPI } from '../service/api';
 import SkeletonCard from './SkeletonCard';
 
 export default function Post() {
-    const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 번호
-    const [itemsPerPage] = useState(4); // 한 페이지에 표시할 항목 수
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(4); 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -33,17 +32,14 @@ export default function Post() {
         fetchData();
     }, []);
 
-    // 현재 페이지의 데이터 범위 계산
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
-    // 페이지 번호 변경 시 호출할 함수
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Loading state UI
     if (loading) {
         return (
             <div className='flex justify-center p-2'>
@@ -62,7 +58,6 @@ export default function Post() {
         );
     }
 
-    // Error state UI
     if (error) {
         return (
             <div className='flex justify-center p-2'>
@@ -101,7 +96,6 @@ export default function Post() {
                     </Link>
                 ))}
 
-                {/* 페이지네이션 컴포넌트 */}
                 <Pagination
                     itemsPerPage={itemsPerPage}
                     totalItems={data.length}

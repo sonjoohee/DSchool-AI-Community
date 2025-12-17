@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import '../App.css';
 import BackButton from '../component/backbutton';
 import TopButton from '../component/topbutton';
@@ -35,7 +35,6 @@ export default function Board() {
 
     const selectedPost = data.find((item) => item._source.item_idx === parseInt(item_idx));
 
-    // Loading state UI
     if (loading) {
         return (
             <div>
@@ -73,7 +72,6 @@ export default function Board() {
         );
     }
 
-    // Error state UI
     if (error) {
         return (
             <div>

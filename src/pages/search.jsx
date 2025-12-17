@@ -37,17 +37,14 @@ export default function Search() {
         fetchData();
     }, [params.result]);
 
-    // 현재 페이지의 데이터 범위 계산
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = results.slice(indexOfFirstItem, indexOfLastItem);
 
-    // 페이지 번호 변경 시 호출할 함수
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Loading state UI
     if (loading) {
         return (
             <div className="flex flex-col">
@@ -73,7 +70,6 @@ export default function Search() {
         );
     }
 
-    // Error state UI
     if (error) {
         return (
             <div className="flex flex-col">
@@ -121,7 +117,7 @@ export default function Search() {
                                 </Link>
                             ))
                         )}
-                        {/* 페이지네이션 컴포넌트 */}
+
                         {results.length > 0 && (
                             <Pagination
                                 itemsPerPage={itemsPerPage}

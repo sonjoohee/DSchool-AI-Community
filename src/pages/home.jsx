@@ -16,7 +16,6 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-
     const fetchData = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -36,43 +35,33 @@ export default function Home() {
         fetchData();
     }, [fetchData]);
 
-    // 클릭한 게시글의 조회수를 증가시키는 함수
+    // 게시글 클릭 시 조회수 증가 처리
     const increaseClicked = async (_id) => {
         try {
-            // 서버에 PUT 요청을 보내 조회수 증가
             await searchAPI.increaseClicked(_id);
 
-            // 조회수 증가가 성공한 후, 데이터를 다시 가져와서 업데이트합니다.
+            // 서버 부하를 줄이기 위해 목록을 재조회하지 않고, 로컬 상태만 즉시 업데이트
             const updatedData = [...data];
-
-            // 해당 아이템을 찾아서 클릭수 증가
             const itemIndex = updatedData.findIndex(item => item._source._id === _id);
+            
             if (itemIndex !== -1) {
-                if (!updatedData[itemIndex]._source.clicked) {
-                    updatedData[itemIndex]._source.clicked = 1;
-                } else {
-                    updatedData[itemIndex]._source.clicked += 1;
-                }
+                const currentClicked = updatedData[itemIndex]._source.clicked || 0;
+                updatedData[itemIndex]._source.clicked = currentClicked + 1;
+                setData(updatedData);
             }
-
-            // 상태 업데이트
-            setData(updatedData);
         } catch (error) {
-            console.error("Error:", error);
+            console.error("Error increasing view count:", error);
         }
     };
 
-    // 현재 페이지의 데이터 범위 계산
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
-    // 페이지 번호 변경 시 호출할 함수
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Loading state UI
     if (loading) {
         return (
             <div className="flex flex-col">
@@ -97,7 +86,6 @@ export default function Home() {
         );
     }
 
-    // Error state UI
     if (error) {
         return (
             <div className="flex flex-col">
@@ -144,7 +132,6 @@ export default function Home() {
                             </Link>
                         ))}
 
-                        {/* 페이지네이션 컴포넌트 */}
                         <Pagination
                             itemsPerPage={itemsPerPage}
                             totalItems={data.length}
@@ -152,6 +139,7 @@ export default function Home() {
                             currentPage={currentPage}
                         />
                     </div>
+                    {/* 우측 추천글 영역 */}
                     <div className='w-[30rem] border border-[#d6d6d6] p-3 ml-2 bg-white'>
                         <div className='w-full h-fit pb-3'>
                             <span className='flex'><p className='font-bold text-red-600'>홍길동</p>님을 위한 추천글</span>

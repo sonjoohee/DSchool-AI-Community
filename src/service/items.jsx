@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom'; // 1. Link 컴포넌트 임포트
+import { Link } from 'react-router-dom';
 import { searchAPI } from './api';
 
 function Items() {
