@@ -1,0 +1,7 @@
+Refactor: 데이터 페칭 로직 React Query로 마이그레이션 (성능 최적화)
+- Home 컴포넌트의 useEffect + axios 기반 데이터 페칭을 React Query의 useQuery로 변경
+- 자동 캐싱, 로딩 상태 관리, 에러 처리 등의 이점을 활용
+
+Refactor: 검색 폼 React Hook Form 도입하여 렌더링 최적화
+- Header 컴포넌트의 검색 입력 필드를 React Hook Form으로 변경
+- 폼 유효성 검사 및 제출 처리 개선

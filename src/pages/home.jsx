@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import {  useState } from "react";
 import { Link } from "react-router-dom";
 import Pagination from "../component/pagination";
 import replie from '../icons/replie.png'
@@ -6,6 +6,7 @@ import Header from "../component/headerA";
 import Posting from "../component/recommend/posting";
 import { searchAPI } from "../service/api";
 import SkeletonCard from "../component/SkeletonCard";
+import { useQuery } from "react-query";
 
 export default function Home() {
     const [currentPage, setCurrentPage] = useState(1);
@@ -13,27 +14,19 @@ export default function Home() {
     const [data, setData] = useState([]);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
 
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        
-        try {
+    const { 
+        data: queryData, 
+        isLoading, 
+        isError,
+        error: queryError
+    } = useQuery({
+        queryKey: ["home", "posts"],
+        queryFn: async () => {
             const response = await searchAPI.getAllItems();
-            const responseData = response.data;
-            setData(responseData.hits?.hits || []);
-        } catch (error) {
-            setError("게시글을 불러오는 중 오류가 발생했습니다.");
-        } finally {
-            setLoading(false);
+            return response.data?.hits?.hits || [];
         }
-    }, []);
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    });
 
     // 게시글 클릭 시 조회수 증가 처리
     const increaseClicked = async (_id) => {
@@ -56,13 +49,13 @@ export default function Home() {
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = queryData?.slice(indexOfFirstItem, indexOfLastItem) || [];
 
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex flex-col">
                 <Header query={query} setQuery={setQuery} results={results} setResults={setResults} />
@@ -86,12 +79,12 @@ export default function Home() {
         );
     }
 
-    if (error) {
+    if (isError) {
         return (
             <div className="flex flex-col">
                 <Header query={query} setQuery={setQuery} results={results} setResults={setResults} />
                 <div className="bg-gray-200 min-h-screen flex justify-center items-center">
-                    <div className="text-red-500 p-4">{error}</div>
+                    <div className="text-red-500 p-4">{queryError?.message || "게시글을 불러오는 중 오류가 발생했습니다."}</div>
                 </div>
             </div>
         );
@@ -134,7 +127,7 @@ export default function Home() {
 
                         <Pagination
                             itemsPerPage={itemsPerPage}
-                            totalItems={data.length}
+                            totalItems={queryData?.length || 0}
                             paginate={paginate}
                             currentPage={currentPage}
                         />

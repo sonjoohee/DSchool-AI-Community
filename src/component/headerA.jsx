@@ -2,18 +2,20 @@ import searchicon from "../icons/searchicon.svg";
 import Logo from "../icons/dschool_logo1.png";
 import { Link, useNavigate } from "react-router-dom";
 import { searchAPI } from "../service/api";
+import { useForm } from "react-hook-form";
 
 export default function Header({ query, setQuery, results, setResults }) {
     const navigate = useNavigate()
+    const { register, handleSubmit } = useForm();
 
-    const handleSearch = async () => {
-        if (!query.trim()) return;
+    const onSubmit = async (data) => {
+        if (!data.searchQuery.trim()) return;
         
         try {
-            const response = await searchAPI.searchPosts(query);
-            const data = response.data;
-            setResults(data.hits || []);
-            navigate(`/search/${encodeURIComponent(query)}`);
+            const response = await searchAPI.searchPosts(data.searchQuery);
+            const responseData = response.data;
+            setResults(responseData.hits || []);
+            navigate(`/search/${encodeURIComponent(data.searchQuery)}`);
         } catch (error) {
             console.error("Error:", error);
             setResults([]);
@@ -22,7 +24,7 @@ export default function Header({ query, setQuery, results, setResults }) {
 
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
-            handleSearch();
+            handleSubmit(onSubmit)();
         }
     };
 
@@ -43,6 +45,7 @@ export default function Header({ query, setQuery, results, setResults }) {
                         type="text"
                         placeholder="검색어를 입력하세요"
                         value={query}
+                        {...register("searchQuery")}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyPress={handleKeyPress}
                     />
@@ -51,7 +54,7 @@ export default function Header({ query, setQuery, results, setResults }) {
                             className="cursor-pointer w-6 h-6"
                             src={searchicon}
                             alt="search"
-                            onClick={handleSearch}
+                            onClick={handleSubmit(onSubmit)}
                         />
                     </span>
                     <div className="text-red-600 w-12 h-10 text-2xl border-l border-red-600 flex items-center justify-center">
